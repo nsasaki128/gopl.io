@@ -32,9 +32,28 @@ func writeDupLineAndFiles(files []string) {
 		}
 	}
 
+	writeCounts(counts)
+}
+
+func countLines(f *os.File, fileName string, counts map[string]map[string]int)  {
+	input := bufio.NewScanner(f)
+	for input.Scan() {
+		countLine(input.Text(), fileName, counts)
+	}
+	//注意: input.Err()からのエラーの可能性を無視している
+}
+
+func countLine(text string,fileName string, counts map[string]map[string]int) {
+	if counts[text]== nil {
+		 counts[text] = make(map[string]int)
+	}
+	counts[text][fileName]++
+}
+
+func writeCounts(counts map[string]map[string]int) {
 	//for testing results, here I sorted keys
 	var lines []string
-	for line, _ := range counts {
+	for line := range counts {
 		lines = append(lines, line)
 	}
 	sort.Strings(lines)
@@ -52,15 +71,4 @@ func writeDupLineAndFiles(files []string) {
 			fmt.Fprintf(out, "%d\t%s\t%s\n", sum, line, strings.Join(fileNames, "\t"))
 		}
 	}
-}
-
-func countLines(f *os.File, fileName string, counts map[string]map[string]int)  {
-	input := bufio.NewScanner(f)
-	for input.Scan() {
-		if(counts[input.Text()] == nil) {
-			counts[input.Text()] = make(map[string]int)
-		}
-		counts[input.Text()][fileName]++
-	}
-	//注意: input.Err()からのエラーの可能性を無視している
 }
