@@ -32,11 +32,11 @@ func writeRespBody(url string) {
 	fmt.Fprintf(os.Stdout, "HTTP STATUS: %s\n", resp.Status)
 
 	_, err = io.Copy(os.Stdout, resp.Body)
+	resp.Body.Close()
 	if err != nil{
 		fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
 		os.Exit(1)
 	}
-	resp.Body.Close()
 
 }
 
