@@ -9,20 +9,44 @@ import (
 	"io/ioutil"
 )
 
+const (
+	resultFile = "fetchResult.txt"
+	repeatTime = 2
+)
+
+
 func main () {
+	file, err := os.Create(resultFile)
+	if err != nil {
+		fmt.Sprint(err)
+	}
+
+	writeText := ""
+	for i := 0; i < repeatTime; i++ {
+		writeText += fetchallTime(os.Args[1:])
+	}
+	file.WriteString(writeText)
+
+	file.Close()
+}
+
+func fetchallTime(urls []string) string {
+	outputString := ""
 	start := time.Now()
 	ch := make(chan string)
 
-	for _, url := range os.Args[1:] {
+	for _, url := range urls {
 		go fetch(url, ch) // ゴルーチンを開始
 	}
 
-	for range os.Args[1:] {
-		fmt.Println(<-ch) // ch チャネルから受信
+	for range urls {
+		outputString += (<-ch) // ch チャネルから受信
 	}
 
-	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+	totalResult := fmt.Sprintf("%.2fs elapsed\n", time.Since(start).Seconds())
+	outputString += totalResult
 
+	return outputString
 }
 
 func fetch(url string, ch chan<-string) {
@@ -43,6 +67,6 @@ func fetch(url string, ch chan<-string) {
 	}
 
 	secs := time.Since(start).Seconds()
-	ch <- fmt.Sprintf("%.2fs %7d %s", secs, nbytes, url)
-
+	ch <- fmt.Sprintf("%.2fs %7d %s\n", secs, nbytes, url)
 }
+
