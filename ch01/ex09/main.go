@@ -15,11 +15,11 @@ const (
 func main() {
 
 	for _, url := range os.Args[1:] {
-		writeRespBody(url)
+		printRespBody(url)
 	}
 }
 
-func writeRespBody(url string) {
+func printRespBody(url string) {
 
 	url = addUrlHeaderIfNeeded(url)
 
