@@ -15,19 +15,26 @@ import (
 	"net/url"
 )
 
-var palette = []color.Color{color.White, color.RGBA{0x00, 0xff, 0x00, 0xff}}
+var palette = []color.Color{color.Black, color.RGBA{0x00, 0xff, 0x00, 0xff}}
 const (
 	blackIndex = 0 //パレットの最初の色
 	greenIndex = 1 //パレットの次の色
 )
 
+type lissajousInfo struct {
+	cycles int
+	res float64
+	size int
+	nframes int
+	delay int
+}
 
 func main() {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err!=nil {
 			log.Print(err)
 		}
-		lissajous(w, r.Form)
+		lissajous(w, createLissajousInfo(r.Form))
 	}
 
 	http.HandleFunc("/", handler)
@@ -38,11 +45,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
 }
 
-
-
-func lissajous(out io.Writer, form url.Values) {
-	rand.Seed(time.Now().UTC().UnixNano())
-
+func createLissajousInfo(form url.Values) lissajousInfo {
 	cycles  := 5     // 発信器xが完了する周回の回数
 	res     := 0.001 // 回転の分解能
 	size    := 100   // 画像キャンパスは [-size..+size] の範囲で扱う
@@ -65,21 +68,26 @@ func lissajous(out io.Writer, form url.Values) {
 			}
 		}
 	}
+	return lissajousInfo{cycles:cycles, res:res, size:size, nframes:nframes, delay:delay}
+}
+
+func lissajous(out io.Writer, info lissajousInfo) {
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	freq := rand.Float64() * 3.0 // 発信器yの相対周波数
-	anim := gif.GIF{LoopCount: nframes}
+	anim := gif.GIF{LoopCount: info.nframes}
 	phase := 0.0 //位相差
 
-	for i := 0; i < nframes; i++ {
-		rect := image.Rect(0, 0, 2*size+1, 2*size+1)
+	for i := 0; i < info.nframes; i++ {
+		rect := image.Rect(0, 0, 2*info.size+1, 2*info.size+1)
 		img  := image.NewPaletted(rect, palette)
-		for t := 0.0; t < float64(cycles)*2*math.Pi; t += res {
+		for t := 0.0; t < float64(info.cycles)*2*math.Pi; t += info.res {
 			x := math.Sin(t)
 			y := math.Sin(t*freq + phase)
-			img.SetColorIndex(size+int(x*float64(size)+0.5), size+int(y*float64(size)+0.5), greenIndex)
+			img.SetColorIndex(info.size+int(x*float64(info.size)+0.5), info.size+int(y*float64(info.size)+0.5), greenIndex)
 		}
 		phase += 0.1
-		anim.Delay = append(anim.Delay, delay)
+		anim.Delay = append(anim.Delay, info.delay)
 		anim.Image = append(anim.Image, img)
 	}
 
