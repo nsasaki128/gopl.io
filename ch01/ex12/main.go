@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -30,19 +29,15 @@ type lissajousInfo struct {
 }
 
 func main() {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err!=nil {
-			log.Print(err)
-		}
-		lissajous(w, createLissajousInfo(r.Form))
-	}
-
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+	if err := r.ParseForm(); err!=nil {
+		log.Print(err)
+	}
+	lissajous(w, createLissajousInfo(r.Form))
 }
 
 func createLissajousInfo(form url.Values) lissajousInfo {
