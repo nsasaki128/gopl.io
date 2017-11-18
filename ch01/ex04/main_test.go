@@ -83,7 +83,7 @@ func TestCountLine(t *testing.T) {
 }
 
 
-func TestWriteCounts(t *testing.T){
+func TestPrintCounts(t *testing.T){
 	var tests = []struct{
 		caseName string
 		inputResults map[string]map[string]int
@@ -128,7 +128,7 @@ func TestWriteCounts(t *testing.T){
 
 	for _, test := range tests {
 		out = new(bytes.Buffer)
-		writeCounts(test.inputResults)
+		printCounts(test.inputResults)
 		got := out.(*bytes.Buffer).String()
 		if got != test.expected {
 			t.Errorf("error in case \"%s\" expected results is \"%s\" and actual result is \"%s\".", test.caseName, test.expected, got)
