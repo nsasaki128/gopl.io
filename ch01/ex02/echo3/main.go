@@ -8,10 +8,14 @@ import (
 )
 
 func main() {
-	var result []string
+	fmt.Print(echoWithIndex(os.Args[1:]))
+}
+func echoWithIndex(args []string) string {
+	var results []string
 
-	for i, arg := range os.Args[1:] {
-		result = append(result, strconv.Itoa(i+1) + " " + arg + "\n")
+	for i, arg := range args {
+		results = append(results, strconv.Itoa(i+1) + " " + arg + "\n")
 	}
-	fmt.Print(strings.Join(result[0:], ""))
+
+	return strings.Join(results, "")
 }

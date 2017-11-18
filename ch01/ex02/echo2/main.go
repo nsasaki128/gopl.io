@@ -8,9 +8,13 @@ import (
 )
 
 func  main()  {
-	s, sep := "", " "
-	for i, arg := range os.Args[1:] {
-		s = strconv.Itoa(i+1) + sep + arg
-		fmt.Println(s)
+	fmt.Print(echoWithIndex(os.Args[1:]))
+}
+
+func echoWithIndex(args []string) string {
+	s, sep, nl := "", " ", "\n"
+	for i, arg := range args {
+		s += strconv.Itoa(i+1) + sep + arg + nl
 	}
+	return s
 }

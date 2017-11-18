@@ -8,10 +8,15 @@ import (
 )
 
 func main(){
-	var s, sep string
-	sep = " "
-	for i := 1; i < len(os.Args); i++ {
-		s = strconv.Itoa(i) + sep + os.Args[i]
-		fmt.Println(s)
+		fmt.Print(echoWithIndex(os.Args[1:]))
 	}
+
+func echoWithIndex(args []string) string {
+	var s, sep, nl string
+	sep = " "
+	nl = "\n"
+	for i := 0; i < len(args); i++ {
+		s += strconv.Itoa(i+1) + sep + args[i] + nl
+	}
+	return s
 }
