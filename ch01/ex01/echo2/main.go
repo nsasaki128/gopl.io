@@ -7,10 +7,13 @@ import (
 )
 
 func  main()  {
+	fmt.Println(echo(os.Args))
+}
+func echo(args []string) string {
 	s, sep := "", ""
-	for _, arg := range os.Args[0:] {
+	for _, arg := range args[0:] {
 		s += sep + arg
 		sep = " "
 	}
-	fmt.Println(s)
+	return s
 }
