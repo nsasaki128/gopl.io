@@ -23,7 +23,6 @@ func fetchUrls(outStream io.Writer, errStream io.Writer, urls []string) {
 }
 
 func fetch(outStream io.Writer, errStream io.Writer, url string){
-
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Fprintf(errStream, "fetch: %v\n", err)

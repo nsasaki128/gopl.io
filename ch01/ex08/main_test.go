@@ -56,8 +56,6 @@ func TestAddUrlHeaderIfNeeded(t *testing.T) {
 
 	}
 
-
-
 	for _, testCase := range tests {
 		if result := addUrlHeaderIfNeeded(testCase.input); result != testCase.expectedResult {
 			t.Errorf("error in case %s input text %s expects %s but result is %s\n",
