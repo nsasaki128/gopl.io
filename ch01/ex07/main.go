@@ -8,21 +8,27 @@ import (
 )
 
 func main() {
+	fetchUrls(os.Stdout, os.Stderr, os.Args[1:])
+}
 
-	for _, url := range os.Args[1:] {
+func fetchUrls(outStream io.Writer, errStream io.Writer, urls []string) {
+	for _, url := range urls {
+		fetch(outStream, errStream, url)
+	}
+}
 
-		resp, err := http.Get(url)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
-			os.Exit(1)
-		}
+func fetch(outStream io.Writer, errStream io.Writer, url string){
 
-		_, err = io.Copy(os.Stdout, resp.Body)
-		resp.Body.Close()
-		if err != nil{
-			fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
-			os.Exit(1)
-		}
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Fprintf(errStream, "fetch: %v\n", err)
+		os.Exit(1)
+	}
 
+	_, err = io.Copy(outStream, resp.Body)
+	resp.Body.Close()
+	if err != nil{
+		fmt.Fprintf(errStream, "fetch: reading %s: %v\n", url, err)
+		os.Exit(1)
 	}
 }

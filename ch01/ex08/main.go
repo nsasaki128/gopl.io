@@ -13,29 +13,29 @@ const (
 )
 
 func main() {
+	fetchUrls(os.Stdout, os.Stderr, os.Args[1:])
+}
 
-	for _, url := range os.Args[1:] {
-		printRespBody(url)
+func fetchUrls(outStream io.Writer, errStream io.Writer, urls []string) {
+	for _, url := range urls {
+		fetch(outStream, errStream, addUrlHeaderIfNeeded(url))
 	}
 }
 
-func printRespBody(url string) {
-
-	url = addUrlHeaderIfNeeded(url)
+func fetch(outStream io.Writer, errStream io.Writer, url string){
 
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
+		fmt.Fprintf(errStream, "fetch: %v\n", err)
 		os.Exit(1)
 	}
 
-	_, err = io.Copy(os.Stdout, resp.Body)
+	_, err = io.Copy(outStream, resp.Body)
 	resp.Body.Close()
 	if err != nil{
-		fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
+		fmt.Fprintf(errStream, "fetch: reading %s: %v\n", url, err)
 		os.Exit(1)
 	}
-
 }
 
 func addUrlHeaderIfNeeded(url string) string {
