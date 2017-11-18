@@ -11,17 +11,23 @@ import (
 	"math"
 	"math/rand"
 	"image/color"
+	"strconv"
+	"net/url"
 )
 
-var palette = []color.Color{color.Black, color.RGBA{0x00, 0xff, 0x00, 0xff}}
+var palette = []color.Color{color.White, color.RGBA{0x00, 0xff, 0x00, 0xff}}
 const (
 	blackIndex = 0 //パレットの最初の色
 	greenIndex = 1 //パレットの次の色
 )
 
+
 func main() {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		lissajous(w)
+		if err := r.ParseForm(); err!=nil {
+			log.Print(err)
+		}
+		lissajous(w, r.Form)
 	}
 
 	http.HandleFunc("/", handler)
@@ -34,13 +40,31 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 
 
-func lissajous(out io.Writer) {
+func lissajous(out io.Writer, form url.Values) {
 	rand.Seed(time.Now().UTC().UnixNano())
-		cycles  := 5     // 発信器xが完了する周回の回数
-		res     := 0.001 // 回転の分解能
-		size    := 100   // 画像キャンパスは [-size..+size] の範囲で扱う
-		nframes := 64    // アニメーションフレーム数
-		delay   := 8     // 10ms単位でのフレーム間の遅延
+
+	cycles  := 5     // 発信器xが完了する周回の回数
+	res     := 0.001 // 回転の分解能
+	size    := 100   // 画像キャンパスは [-size..+size] の範囲で扱う
+	nframes := 64    // アニメーションフレーム数
+	delay   := 8     // 10ms単位でのフレーム間の遅延
+
+	for k, v := range form {
+		if i, err := strconv.Atoi(v[0]); err == nil {
+			switch k {
+			case "cycles" : cycles = i
+			case "size" : size = i
+			case "nframes" : nframes = i
+			case "delay" : delay = i
+			}
+		}
+
+		if f64, err := strconv.ParseFloat(v[0], 64); err == nil {
+			switch k {
+			case "res": res = f64
+			}
+		}
+	}
 
 	freq := rand.Float64() * 3.0 // 発信器yの相対周波数
 	anim := gif.GIF{LoopCount: nframes}
