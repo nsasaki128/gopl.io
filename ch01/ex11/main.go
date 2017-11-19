@@ -12,7 +12,7 @@ import (
 
 const (
 	resultFile = "fetchResult.txt"
-	repeatTime = 2
+	repeatTime = 1
 	urlHeader = "http://"
 )
 
