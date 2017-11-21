@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"net/http"
 	"fmt"
+	"math"
 )
 
 func TestCreateLissajousInfo(t *testing.T) {
@@ -22,7 +23,8 @@ func TestCreateLissajousInfo(t *testing.T) {
 		{name:"full query",query   : "cycles=3&res=0.002&size=200&nframes=32&delay=3", expected:lissajousInfo{cycles:3, res:0.002, size:200, nframes:32, delay:3}},
 		{name:"duplicated cycles query", query   : "cycles=3&cycles=20", expected:lissajousInfo{cycles:3, res:0.001, size:100, nframes:64, delay:8}},
 		}
-
+	//for float error
+	const eps = 1e-10
 	for _, testCase := range testCases{
 			ts := httptest.NewServer(http.HandlerFunc(handler))
 			defer ts.Close()
@@ -34,7 +36,7 @@ func TestCreateLissajousInfo(t *testing.T) {
 				t.Errorf("error in case %s cycles\nexpected:\t%d\nactual:\t%d\n", testCase.name, testCase.expected.cycles, actual.cycles)
 				continue
 			}
-			if actual.res != testCase.expected.res {
+			if math.Abs(actual.res - testCase.expected.res) > eps {
 				t.Errorf("error in case %s res\nexpected:\t%f\nactual:\t%f\n", testCase.name, testCase.expected.res, actual.res)
 				continue
 			}
