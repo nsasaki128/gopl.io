@@ -34,7 +34,7 @@ alexaのトップ25サイトで実施したところ問題なく動いた。
 ```
 ### 確認方法
 ```bash
-./test.sh
+./test.bash
 ```
 
 ## 回答と理由:応答しないウェブサイト
@@ -44,6 +44,5 @@ alexaのトップ25サイトで実施したところ問題なく動いた。
 応答しないサーバー(server/main.go)を作成し、下記の方法で確認したところ、処理が進まなかったため。
 #### 確認方法
 ```bash
-go run server/main.go &
-go run main.go http://localhost:8000
+./test2.bash
 ```
