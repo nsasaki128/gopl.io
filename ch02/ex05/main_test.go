@@ -32,10 +32,25 @@ func TestIteratePopCount(t *testing.T) {
 		}
 	}
 }
-
 func TestShiftPopCount(t *testing.T) {
 	for _, testCase := range testCases {
 		result := ShiftPopCount(testCase.input)
+		if result != testCase.expected {
+			t.Errorf("case %s expected %s actual %s", testCase.name, testCase.expected, result)
+		}
+	}
+}
+func TestClearPopCount(t *testing.T) {
+	for _, testCase := range testCases {
+		result := ClearPopCount(testCase.input)
+		if result != testCase.expected {
+			t.Errorf("case %s expected %s actual %s", testCase.name, testCase.expected, result)
+		}
+	}
+}
+func TestDivideAndConquerPopCount(t *testing.T) {
+	for _, testCase := range testCases {
+		result := DivideAndConquerPopCount(testCase.input)
 		if result != testCase.expected {
 			t.Errorf("case %s expected %s actual %s", testCase.name, testCase.expected, result)
 		}
@@ -57,5 +72,13 @@ func BenchmarkShiftPopCount(b *testing.B) {
 		ShiftPopCount(uint64(i))
 	}
 }
-
-
+func BenchmarkClearPopCount(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ClearPopCount(uint64(i))
+	}
+}
+func BenchmarkDivideAndConquerPopCount(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		DivideAndConquerPopCount(uint64(i))
+	}
+}
