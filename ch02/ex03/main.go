@@ -1,10 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"os"
-)
-
 // pc[i]はiのポピュレーションカウントです。
 var pc [256]byte
 
