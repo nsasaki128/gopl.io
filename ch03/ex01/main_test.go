@@ -26,7 +26,7 @@ func TestIsInvalid(t *testing.T) {
 		{name: "invaild case const NaN", in: math.NaN(),
 			expected: false,
 		},
-		{name: "invalid case divide 0 by 0", in: f(0, 0),
+		{name: "invalid case divide 0 by 0", in: func(f float64) float64{return f/f}(0),
 			expected: false,
 		},
 		{name: "infinite positive value", in: math.Inf(1),
@@ -43,3 +43,4 @@ func TestIsInvalid(t *testing.T) {
 		}
 	}
 }
+
