@@ -28,3 +28,11 @@ func IteratePopCount(x uint64) int {
 	}
 	return out
 }
+
+func ShiftPopCount(x uint64) int {
+	var out int
+	for i := uint(0); i < 64; i++ {
+		out += int(x>>i)&1
+	}
+	return out
+}

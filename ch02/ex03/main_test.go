@@ -16,11 +16,13 @@ var testCases = []struct {
 	{name: "input MAX", input: 1<<63 - 1, expected: 63},
 }
 
+
+
 func TestPopCount(t *testing.T) {
 	for _, testCase := range testCases {
 		result := PopCount(testCase.input)
 		if result != testCase.expected {
-			t.Errorf("case %s expected %s actual %s", testCase.name, testCase.expected, result)
+			t.Errorf("case %s expected %d actual %d", testCase.name, testCase.expected, result)
 		}
 	}
 }
@@ -28,18 +30,22 @@ func TestIteratePopCount(t *testing.T) {
 	for _, testCase := range testCases {
 		result := IteratePopCount(testCase.input)
 		if result != testCase.expected {
-			t.Errorf("case %s expected %s actual %s", testCase.name, testCase.expected, result)
+			t.Errorf("case %s expected %d actual %d", testCase.name, testCase.expected, result)
 		}
 	}
 }
 
 func BenchmarkPopCount(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		PopCount(uint64(i))
+		PopCount(uint64(1<<63 - 1))
+		PopCount(uint64(0))
+		PopCount(uint64(127))
 	}
 }
 func BenchmarkIteratePopCount(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		IteratePopCount(uint64(i))
+		IteratePopCount(uint64(1<<63 - 1))
+		IteratePopCount(uint64(0))
+		IteratePopCount(uint64(127))
 	}
 }

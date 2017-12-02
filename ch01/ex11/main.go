@@ -20,7 +20,7 @@ const (
 func main () {
 	file, err := os.Create(resultFile)
 	if err != nil {
-		fmt.Sprint(err)
+		fmt.Println(err)
 	}
 
 	writeText := ""
