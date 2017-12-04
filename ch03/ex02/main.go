@@ -18,7 +18,7 @@ const (
 )
 
 var sin30, cos30 = math.Sin(angle), math.Cos(angle) //sin(30度), cos(30度)
-var function = flag.String("f", "sinc", "function for visualizing(sinc, saddle, egg)")
+var function = flag.String("f", "sinc", "function for visualizing(sinc, saddle, egg, mogul)")
 
 var f func(x, y float64) float64
 func init(){
@@ -43,6 +43,17 @@ func init(){
 			//cos(x)cos(y)
 			scale := 8
 			return math.Cos(x)*math.Cos(y)/float64(scale)
+		}
+		//bump function
+		// see http://math.mit.edu/~stevenj/bump-saddle.pdf
+	case "mogul":
+		f = func(x, y float64) float64 {
+			scale := 8
+			r := math.Sin(x)*math.Sin(y)
+			if(math.Abs(r-1) < 1e-10 ){
+				return 0
+			}
+			return math.Pow(math.E, -1/(1 - r*r))/float64(scale)
 		}
 	default:
 		flag.Usage()
@@ -89,11 +100,6 @@ func corner(i, j int) (float64, float64, bool) {
 	}
 
 	return sx, sy, isFinate
-}
-
-
-func fMogul(x, y float64) float64 {
-	return math.Sin(-x) * math.Pow(1.5, -math.Hypot(x, y))
 }
 
 
