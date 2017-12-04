@@ -67,6 +67,7 @@ func main() {
 	fmt.Printf("<svg xmlns='http://www.w3.org/2000/svg' "+
 		"style='stroke: gray; fill: white; stroke-width: 0.7' "+
 		"width='%d' height='%d'>", width, height)
+	min, max := computeMinMax()
 	for i := 0; i < cells; i++ {
 		for j := 0; j < cells; j++ {
 			ax, ay, ao := corner(i+1, j)
@@ -74,12 +75,43 @@ func main() {
 			cx, cy, co := corner(i, j+1)
 			dx, dy, do := corner(i+1, j+1)
 			if ao && bo && co && do {
-				fmt.Printf("<polygon points='%g,%g,%g,%g,%g,%g,%g,%g'/>\n",
-					ax, ay, bx, by, cx, cy, dx, dy)
+				color := computeColor(i, j, min, max)
+				fmt.Printf("<polygon points='%g,%g,%g,%g,%g,%g,%g,%g' style='fill:%s'/>\n",
+					ax, ay, bx, by, cx, cy, dx, dy, color)
 			}
 		}
 	}
 	fmt.Println("</svg>")
+}
+
+func computeMinMax () (float64, float64){
+	min, max := math.MaxFloat64, -math.MaxFloat64
+	for i := 0; i < cells; i++ {
+		for j := 0; j < cells; j++ {
+			x :=xyrange * (float64(i)/cells - 0.5)
+			y :=xyrange * (float64(j)/cells - 0.5)
+			z := f(x, y)
+			if math.IsInf(z, 0) || math.IsNaN(z){
+				 continue
+			}
+			min = math.Min(min, z)
+			max = math.Max(max, z)
+		}
+	}
+	return min, max
+}
+
+func computeColor (i, j int, min, max float64) string{
+	x :=xyrange * (float64(i)/cells - 0.5)
+	y :=xyrange * (float64(j)/cells - 0.5)
+	z := f(x, y)
+
+	ratio := (max - z) / (max - min)
+	//ratio ranges are from 0 to 1
+	red := uint8(255*(1 - ratio))
+	blue := uint8(255*ratio)
+
+	return fmt.Sprintf("#%02x00%02x", red, blue)
 }
 
 func corner(i, j int) (float64, float64, bool) {
