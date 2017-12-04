@@ -53,7 +53,7 @@ func init(){
 			if(math.Abs(r-1) < 1e-10 ){
 				return 0
 			}
-			return -x/(float64(scale)*float64(scale)) - math.Pow(math.E, -1/(1 - r*r))/float64(scale)
+			return -math.Pow(math.E, -1/(1 - r*r))/float64(scale)
 		}
 	default:
 		flag.Usage()
