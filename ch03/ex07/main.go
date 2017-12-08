@@ -38,16 +38,16 @@ func newton(z complex128) color.Color {
 	var f complex128
 	var df complex128
 	for n := uint8(0); n < iterations; n++ {
-		if cmplx.Abs(1+0i - z ) < eps {
+		if cmplx.Abs(complex(1, 0) - z ) < eps {
 			return color.RGBA{255-contrast*n, 255, 0, 255}
 		}
-		if cmplx.Abs(-1+0i - z ) < eps {
+		if cmplx.Abs(complex(-1, 0) - z ) < eps {
 				return color.RGBA{0, 255-contrast*n, contrast*n, 255}
 		}
-		if cmplx.Abs(0-1i - z ) < eps {
+		if cmplx.Abs(complex(0, -1) - z ) < eps {
 			return color.RGBA{contrast*n, 0, 255, 255}
 		}
-		if cmplx.Abs(0+1i - z ) < eps {
+		if cmplx.Abs(complex(0, 1) - z ) < eps {
 			return color.RGBA{255, contrast*n, 255-contrast*n, 255}
 		}
 		f = z*z*z*z - 1
