@@ -29,7 +29,7 @@ func TestCreateFlactalInfo(t *testing.T) {
 
 	testComplex := []complex128{complex(-1.0, -1.0), complex(-1.0, 1.0), complex(1.0, -1.0), complex(1.0, 1.0), complex(0, 0)}
 	for i:=0; i < 12; i++{
-		testComplex = append(testComplex, complex(rand.Float64()*2.0 , rand.Float64())*1.0)
+		testComplex = append(testComplex, complex(rand.Float64()*1.0 , rand.Float64())*1.0)
 	}
 
 	//for float error
