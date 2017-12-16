@@ -3,23 +3,11 @@ package main
 import (
 	"testing"
 )
-var testCases = []struct {
-	name     string
-	input    uint64
-	expected int
-}{
-	{name: "input 0", input: 0, expected: 0},
-	{name: "input 1", input: 1, expected: 1},
-	{name: "input 2", input: 2, expected: 1},
-	{name: "input 3", input: 3, expected: 2},
-	{name: "input 4", input: 4, expected: 1},
-	{name: "input MAX", input: 1<<63 - 1, expected: 63},
-}
 
 func TestDivideAndConquerPopCount(t *testing.T) {
 	var testCases = []struct {
 		name     string
-		input    uint64
+		input    uint8
 		expected int
 	}{
 		{name: "input 0", input: 0, expected: 0},
@@ -27,7 +15,10 @@ func TestDivideAndConquerPopCount(t *testing.T) {
 		{name: "input 2", input: 2, expected: 1},
 		{name: "input 3", input: 3, expected: 2},
 		{name: "input 4", input: 4, expected: 1},
-		{name: "input MAX", input: 1<<63 - 1, expected: 63},
+		{name: "input 8", input: 8, expected: 1},
+		{name: "input 9", input: 9, expected: 2},
+		{name: "input 15", input: 15, expected: 4},
+		{name: "input MAX", input: 1<<7 - 1, expected: 7},
 	}
 	for _, testCase := range testCases {
 		result := DivideAndConquerPopCount(testCase.input)
