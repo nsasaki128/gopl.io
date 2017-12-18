@@ -14,6 +14,7 @@ func TestDeleteSucDup(t *testing.T) {
 		{name:"last duplicated", input: []string{"hoge", "fuga", "piyo", "piyo"}, expected:[]string{"hoge", "fuga", "piyo"}},
 		{name:"duplicated but non-succeeded", input: []string{"hoge", "fuga", "piyo", "fuga", "hoge"}, expected:[]string{"hoge", "fuga", "piyo", "fuga", "hoge"}},
 		{name:"duplicated both succeeded and non-succeeded", input: []string{"hoge", "hoge", "fuga", "fuga", "piyo","fuga", "fuga", "hoge"}, expected:[]string{"hoge", "fuga", "piyo", "fuga", "hoge"}},
+		{name:"duplicated both succeeded and non-succeeded include Japanese", input: []string{"hoge", "hoge", "fuga", "fuga", "ぴよピヨ","ぴよピヨ", "fuga", "hoge"}, expected:[]string{"hoge", "fuga", "ぴよピヨ", "fuga", "hoge"}},
 	}
 
 	for _, testCase := range testCases {
