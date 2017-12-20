@@ -72,12 +72,17 @@ func CreateIssue(param *IssueCreate, token string) (*Issue, error) {
 	return &issue, nil
 }
 
-func UpdateIssue(number string) {
+func UpdateIssue(number string, param *IssueUpdate, token string) (*Issue, error) {
 	//PATCH /repos/:owner/:repo/issues/:number
+	var issue Issue
+	if err := requestIssue("PATCH", param, token, IssuesURL+"/"+number, &issue); err != nil {
+		return nil, err
+	}
 
+	return &issue, nil
 }
 
-func requestIssue(method string, param *IssueCreate, token string, url string, issue *Issue) error {
+func requestIssue(method string, param interface{}, token string, url string, issue *Issue) error {
 	var body io.Reader
 	if param != nil {
 		json, err := json.Marshal(param)

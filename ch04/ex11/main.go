@@ -9,7 +9,7 @@ import (
 
 func main() {
 	search()
-	create("test3", "this is test3")
+	update("3", "test3", "this is test3 updated")
 
 }
 
@@ -30,7 +30,13 @@ func create(title, body string) {
 	}
 	printIssue(issue)
 }
-
+func update(number, title, body string) {
+	issue, err := github.UpdateIssue(number, &github.IssueUpdate{Title: title, Body: body}, "dummy-token")
+	if err != nil {
+		log.Fatal(err)
+	}
+	printIssue(issue)
+}
 func printIssue(issue *github.Issue) {
 	fmt.Printf("#%-5d %9.9s %.55s\n",
 		issue.Number, issue.User.Login, issue.Title)
