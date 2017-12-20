@@ -9,7 +9,7 @@ import (
 
 func main() {
 	search()
-	update("3", "test3", "this is test3 updated")
+	close("2")
 
 }
 
@@ -36,6 +36,14 @@ func update(number, title, body string) {
 		log.Fatal(err)
 	}
 	printIssue(issue)
+}
+func close(number string) {
+	issue, err := github.UpdateIssue(number, &github.IssueUpdate{State: "closed"}, "dummy-token")
+	if err != nil {
+		log.Fatal(err)
+	}
+	printIssue(issue)
+
 }
 func printIssue(issue *github.Issue) {
 	fmt.Printf("#%-5d %9.9s %.55s\n",
