@@ -9,6 +9,7 @@ import (
 
 func main() {
 	search()
+	create("test3", "this is test3")
 
 }
 

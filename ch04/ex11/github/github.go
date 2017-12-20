@@ -64,37 +64,44 @@ func SearchIssues() ([]*Issue, error) {
 
 func CreateIssue(param *IssueCreate, token string) (*Issue, error) {
 	//POST /repos/:owner/:repo/issues
+	var issue Issue
+	if err := requestIssue("POST", param, token, IssuesURL, &issue); err != nil {
+		return nil, err
+	}
+
+	return &issue, nil
+}
+
+func UpdateIssue(number string) {
+	//PATCH /repos/:owner/:repo/issues/:number
+
+}
+
+func requestIssue(method string, param *IssueCreate, token string, url string, issue *Issue) error {
 	var body io.Reader
 	if param != nil {
 		json, err := json.Marshal(param)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		body = bytes.NewBuffer(json)
 	}
 
-	req, err := http.NewRequest("POST", IssuesURL, body)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	req.Header.Set("Authorization", "token "+token)
 
 	client := new(http.Client)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer resp.Body.Close()
-	var issue *Issue
 	if err := json.NewDecoder(resp.Body).Decode(&issue); err != nil {
-		return nil, err
+		return err
 	}
-
-	return issue, nil
-}
-
-func UpdateIssue(number string) {
-	//PATCH /repos/:owner/:repo/issues/:number
-
+	return nil
 }
