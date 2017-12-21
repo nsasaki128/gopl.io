@@ -1,11 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
-
-	"flag"
-
 	"os"
 
 	"gopl.io/ch04/ex11/github"
