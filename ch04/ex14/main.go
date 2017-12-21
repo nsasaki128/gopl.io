@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"log"
 
-	"os"
+	"net/http"
 
 	"gopl.io/ch04/ex14/github"
 )
@@ -73,8 +73,14 @@ var userInformationList = template.Must(template.New("userInformation").Parse(`
 `))
 
 func main() {
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
 	userInformation := getUserInformation()
-	if err := userInformationList.Execute(os.Stdout, userInformation); err != nil {
+	if err := userInformationList.Execute(w, userInformation); err != nil {
 		log.Fatal(err)
 	}
 }
