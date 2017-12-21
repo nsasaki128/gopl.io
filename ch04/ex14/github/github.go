@@ -3,13 +3,18 @@ package github
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
 )
 
-const IssuesURL = "https://api.github.com/repos/nsasaki128/gopl.io/issues"
+const BaseRepoURL = "https://api.github.com/repos/nsasaki128/gopl.io/"
+const IssueURL = BaseRepoURL + "issues"
+const MilestoneURL = BaseRepoURL + "milestones"
+
+const BaseUserURL = "https://api.github.com/users/nsasaki128/"
+const FollowerUserURL = BaseUserURL + "followers"
+const FollowingUserURL = BaseUserURL + "following"
 
 type Issue struct {
 	Number    int
@@ -21,21 +26,20 @@ type Issue struct {
 	Body      string
 }
 
-type IssueCreate struct {
-	Title     string   `json:"title,omitempty"`
-	Body      string   `json:"body,omitempty"`
-	Assignee  string   `json:"assignee,omitempty"`
-	Milestone int      `json:"milestone,omitempty"`
-	Labels    []string `json:"labels,omitempty"`
-}
-
-type IssueUpdate struct {
-	Title     string   `json:"title,omitempty"`
-	Body      string   `json:"body,omitempty"`
-	Assignee  string   `json:"assignee,omitempty"`
-	State     string   `json:"state,omitempty"`
-	Milestone int      `json:"milestone,omitempty"`
-	Labels    []string `json:"labels,omitempty"`
+type Milestone struct {
+	URL          string
+	HTMLURL      string `json:"html_url"`
+	LabelsURL    string `json:"labels_url"`
+	Number       int
+	State        string
+	Title        string
+	Description  string
+	Creator      *User
+	OpenIssues   int       `json:"open_issues"`
+	ClosedIssues int       `json:"closed_issues"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	DueOn        time.Time `json:"due_on"`
 }
 
 type User struct {
@@ -44,45 +48,38 @@ type User struct {
 }
 
 func SearchIssues() ([]*Issue, error) {
-	resp, err := http.Get(IssuesURL)
-	if err != nil {
+	var results []*Issue
+	if err := request("GET", nil, IssueURL, &results); err != nil {
 		return nil, err
 	}
-
-	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
-		return nil, fmt.Errorf("search query failed: %s", resp.Status)
-	}
-	var issues []*Issue
-	if err := json.NewDecoder(resp.Body).Decode(&issues); err != nil {
-		resp.Body.Close()
-		return nil, err
-	}
-	resp.Body.Close()
-	return issues, nil
+	return results, nil
 }
 
-func CreateIssue(param *IssueCreate, token string) (*Issue, error) {
-	//POST /repos/:owner/:repo/issues
-	var issue Issue
-	if err := requestIssue("POST", param, token, IssuesURL, &issue); err != nil {
+func SearchMilestones() ([]*Milestone, error) {
+	var results []*Milestone
+	if err := request("GET", nil, MilestoneURL, &results); err != nil {
 		return nil, err
 	}
-
-	return &issue, nil
+	return results, nil
 }
 
-func UpdateIssue(number string, param *IssueUpdate, token string) (*Issue, error) {
-	//PATCH /repos/:owner/:repo/issues/:number
-	var issue Issue
-	if err := requestIssue("PATCH", param, token, IssuesURL+"/"+number, &issue); err != nil {
+func SearchFollowingUsers() ([]*User, error) {
+	var results []*User
+	if err := request("GET", nil, FollowingUserURL, &results); err != nil {
 		return nil, err
 	}
-
-	return &issue, nil
+	return results, nil
 }
 
-func requestIssue(method string, param interface{}, token string, url string, issue *Issue) error {
+func SearchFollowerUsers() ([]*User, error) {
+	var results []*User
+	if err := request("GET", nil, FollowerUserURL, &results); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
+func request(method string, param interface{}, url string, result interface{}) error {
 	var body io.Reader
 	if param != nil {
 		json, err := json.Marshal(param)
@@ -96,7 +93,6 @@ func requestIssue(method string, param interface{}, token string, url string, is
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", "token "+token)
 
 	client := new(http.Client)
 	resp, err := client.Do(req)
@@ -105,7 +101,7 @@ func requestIssue(method string, param interface{}, token string, url string, is
 	}
 
 	defer resp.Body.Close()
-	if err := json.NewDecoder(resp.Body).Decode(&issue); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
 	return nil
