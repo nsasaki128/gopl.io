@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#test compare with original findliks if same with original ok otherwise ng
 URLs=(https://golang.org http://www.gopl.io/ https://github.com/nsasaki128)
 
 
