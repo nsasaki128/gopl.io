@@ -19,8 +19,8 @@ func TestForEachNode(t *testing.T) {
 	}{
 		{name: "no id", input: "<html><head></head><div>test</div><body></body></html>", id: "hoge", exist: false, expectedKey: "", expectedValue: ""},
 		{name: "id found", input: `<html><head></head><div id="hoge" sample="fuga">test</div><body></body></html>`, id: "hoge", exist: true, expectedKey: "sample", expectedValue: "fuga"},
-		{name: "id not found", input: `<html><head></head><div id="hoge" sample="fuga">test</div><body></body></html>`, id: "fuga", exist: false, expectedKey: "", expectedValue: ""},
-		{name: "id not found", input: `<html><head></head><div id="hoge" sample="fuga">test</div><body></body></html>`, id: "sample", exist: false, expectedKey: "", expectedValue: ""},
+		{name: "id not found key is same", input: `<html><head></head><div id="hoge" sample="fuga">test</div><body></body></html>`, id: "fuga", exist: false, expectedKey: "", expectedValue: ""},
+		{name: "id not found other value is same", input: `<html><head></head><div id="hoge" sample="fuga">test</div><body></body></html>`, id: "sample", exist: false, expectedKey: "", expectedValue: ""},
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
