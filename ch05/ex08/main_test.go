@@ -8,7 +8,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func TestForEachNode(t *testing.T) {
+func TestElementById(t *testing.T) {
 	testCases := []struct {
 		name          string
 		input         string
