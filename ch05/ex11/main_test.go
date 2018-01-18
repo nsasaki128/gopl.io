@@ -17,9 +17,9 @@ func TestTopoSort(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			_, err := topoSort(prereqs)
+			_, err := topoSort(testCase.input)
 			if (err != nil) != testCase.isCyclic {
-
+				t.Errorf("cyclic expects %v but actual %v", testCase.isCyclic, err != nil)
 			}
 		})
 	}
