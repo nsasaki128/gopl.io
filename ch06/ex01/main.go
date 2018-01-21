@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math"
 )
 
 // IntSetは負ではない小さな整数のセットです。
@@ -59,19 +60,66 @@ func (s *IntSet) String() string {
 	return buf.String()
 }
 
+func (s *IntSet) Len() int {
+	len := 0
+	for _, word := range s.words {
+		for j := 0; j < 64; j++ {
+			if word&(1<<uint(j)) != 0 {
+				len++
+			}
+		}
+	}
+	return len
+}
+
+func (s *IntSet) Remove(x int) {
+	word, bit := x/64, uint(x%64)
+	if word < len(s.words) {
+		var removeBit uint64
+		removeBit = math.MaxUint64 & ^(1 << bit)
+		s.words[word] &= removeBit
+	}
+}
+
+func (s *IntSet) Clear() {
+	for i, _ := range s.words {
+		s.words[i] &= 0
+	}
+}
+
+func (s *IntSet) Copy() *IntSet {
+	var dst IntSet
+	for _, tword := range s.words {
+		dst.words = append(dst.words, tword)
+	}
+	return &dst
+}
+
 func main() {
 	var x, y IntSet
 	x.Add(1)
+	x.Add(63)
 	x.Add(144)
 	x.Add(9)
+	x.Remove(1)
 	fmt.Println(x.String())
-
+	x.Clear()
+	fmt.Println(x.String())
+	fmt.Println(x.Len())
 	y.Add(9)
 	y.Add(42)
 	fmt.Println(y.String())
+	fmt.Println(y.Len())
+
+	fmt.Println("hoge")
+	z := x.Copy()
+	fmt.Println(z.String())
+	z = y.Copy()
+	fmt.Println(z.String())
 
 	x.UnionWith(&y)
 	fmt.Println(x.String())
+	fmt.Println(x.Len())
 
 	fmt.Println(x.Has(9), x.Has(123))
 }
