@@ -112,11 +112,11 @@ var trackList = template.Must(template.New("trackTable").Parse(`
 </tr>
 {{range .Tracks}}
 <tr>
-  <td>{{.Title}}</a></td>
+  <td>{{.Title}}</td>
   <td>{{.Artist}}</td>
-  <td>{{.Album}}</a></td>
-  <td>{{.Year}}</a></td>
-  <td>{{.Length}}</a></td>
+  <td>{{.Album}}</td>
+  <td>{{.Year}}</td>
+  <td>{{.Length}}</td>
 </tr>
 {{end}}
 </table>
