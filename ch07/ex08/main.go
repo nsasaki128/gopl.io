@@ -47,6 +47,11 @@ type multiSort struct {
 	less func(x, y *Track) bool
 }
 
+func newMultiSort(t []*Track) multiSort {
+	s := multiSort{t: t, less: func(x, y *Track) bool { return false }}
+	return s
+}
+
 func (m multiSort) Len() int           { return len(m.t) }
 func (m multiSort) Less(i, j int) bool { return m.less(m.t[i], m.t[j]) }
 func (m multiSort) Swap(i, j int)      { m.t[i], m.t[j] = m.t[j], m.t[i] }
@@ -99,9 +104,9 @@ func (m multiSort) byLength() multiSort {
 func main() {
 	printTrakcs(tracks)
 	fmt.Println("After sort title year")
-	sort.Sort(multiSort{t: tracks}.byYear().byTitle())
+	sort.Sort(newMultiSort(tracks).byYear().byTitle())
 	printTrakcs(tracks)
 	fmt.Println("After sort title artist")
-	sort.Sort(multiSort{t: tracks}.byArtist().byTitle())
+	sort.Sort(newMultiSort(tracks).byArtist().byTitle())
 	printTrakcs(tracks)
 }
