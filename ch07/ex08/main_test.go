@@ -102,3 +102,37 @@ func TestLimitReader(t *testing.T) {
 		})
 	}
 }
+
+func newData() []*Track {
+	return []*Track{
+		{"GO", "Dlilah", "From the Roots Up", 2012, length("3m38s")},
+		{"GO", "Moby", "Moby", 1992, length("3m37s")},
+		{"Go Ahead", "Alicia Keys", "As I am", 2007, length("4m36s")},
+		{"Ready 2 Go", "Martin Solveig", "Smash", 2011, length("4m24s")},
+	}
+}
+
+type testSort struct {
+	t    []*Track
+	less func(x, y *Track) bool
+}
+
+func (m testSort) Len() int           { return len(m.t) }
+func (m testSort) Less(i, j int) bool { return m.less(m.t[i], m.t[j]) }
+func (m testSort) Swap(i, j int)      { m.t[i], m.t[j] = m.t[j], m.t[i] }
+
+func BenchmarkStableSort(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		s := newData()
+		sort.Stable(testSort{t: s, less: func(x, y *Track) bool { return x.Title < y.Title }})
+		sort.Stable(testSort{t: s, less: func(x, y *Track) bool { return x.Artist < y.Artist }})
+		sort.Stable(testSort{t: s, less: func(x, y *Track) bool { return x.Album < y.Album }})
+		sort.Stable(testSort{t: s, less: func(x, y *Track) bool { return x.Year < y.Year }})
+		sort.Stable(testSort{t: s, less: func(x, y *Track) bool { return x.Length < y.Length }})
+	}
+}
+
+func BenchmarkMultiSort(b *testing.B) {
+	s := multiSort{t: newData()}.byTitle().byArtist().byAlbum().byYear().byLength()
+	sort.Stable(s)
+}
