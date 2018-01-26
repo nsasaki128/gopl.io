@@ -42,6 +42,7 @@ func topoSort(m map[string][]string) ([]string, error) {
 	seen := make(map[string]bool)
 	temp := make(map[string]bool)
 	isCyclic := false
+	var cyclicItem string
 	var visitAll func(items []string)
 
 	visitAll = func(items []string) {
@@ -51,6 +52,7 @@ func topoSort(m map[string][]string) ([]string, error) {
 			}
 			if temp[item] {
 				isCyclic = true
+				cyclicItem = item
 				return
 			}
 			if !seen[item] {
@@ -72,7 +74,7 @@ func topoSort(m map[string][]string) ([]string, error) {
 	sort.Strings(keys)
 	visitAll(keys)
 	if isCyclic {
-		return nil, fmt.Errorf("cyclic topology")
+		return nil, fmt.Errorf("cyclic topology find for item %s", cyclicItem)
 	}
 	return order, nil
 }
