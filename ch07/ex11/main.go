@@ -17,6 +17,8 @@ func main() {
 	mux.HandleFunc("/list", db.list)
 	mux.HandleFunc("/price", db.price)
 	mux.HandleFunc("/update", db.update)
+	mux.HandleFunc("/create", db.create)
+	mux.HandleFunc("/delete", db.delete)
 	log.Fatal(http.ListenAndServe("localhost:8000", mux))
 }
 
@@ -53,6 +55,39 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 		}
 		db[item] = dollars(newPrice)
 		fmt.Fprintf(w, "price chnages from %s to %s\n", price, db[item])
+	} else {
+		w.WriteHeader(http.StatusNotFound) // 404
+		fmt.Fprintf(w, "no such item: %q\n", item)
+		return
+	}
+}
+
+func (db database) create(w http.ResponseWriter, req *http.Request) {
+	item := req.URL.Query().Get("item")
+	if _, ok := db[item]; !ok {
+		if req.URL.Query().Get("price") == "" {
+			fmt.Fprintf(w, "you need to add price for this item")
+			return
+		}
+		newPrice, err := strconv.ParseFloat(req.URL.Query().Get("price"), 32)
+		if err != nil {
+			fmt.Fprintf(w, "%s is not collect number")
+			return
+		}
+		db[item] = dollars(newPrice)
+		fmt.Fprintf(w, "item:%q add price:%s\n", item, db[item])
+	} else {
+		w.WriteHeader(http.StatusNotFound) // 404
+		fmt.Fprintf(w, "item: %q already exists\n", item)
+		return
+	}
+}
+
+func (db database) delete(w http.ResponseWriter, req *http.Request) {
+	item := req.URL.Query().Get("item")
+	if _, ok := db[item]; ok {
+		delete(db, item)
+		fmt.Fprintf(w, "item:%q deleted\n", item)
 	} else {
 		w.WriteHeader(http.StatusNotFound) // 404
 		fmt.Fprintf(w, "no such item: %q\n", item)
