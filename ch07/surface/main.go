@@ -1,4 +1,4 @@
-package surface
+package main
 
 import (
 	"fmt"
