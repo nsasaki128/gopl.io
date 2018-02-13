@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<catalog>
+    <book>
+        <author id="aut">author id sample</author>
+        <title class="ttl">title class sample</title>
+        <description id="des" class="cool">description id and class sample</description>
+    </book>
+</catalog>
