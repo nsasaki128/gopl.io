@@ -1,4 +1,4 @@
-package clock2
+package main
 
 import (
 	"flag"
@@ -13,7 +13,7 @@ var port = flag.Int("port", 8000, "search port")
 
 func main() {
 	flag.Parse()
-	listener, err := net.Listen("tcp", fmt.Sprintf("localhost%d", *port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
 	if err != nil {
 		log.Fatal(err)
 	}
