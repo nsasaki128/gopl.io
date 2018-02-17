@@ -23,7 +23,11 @@ func crawl(url string) []string {
 	if err != nil {
 		log.Print(err)
 	}
-	return list
+	filtered := selectSameHost(url, list)
+	for _, link := range filtered {
+		save(link)
+	}
+	return filtered
 }
 
 func main() {
@@ -36,15 +40,14 @@ func main() {
 	//ウェブを並行にクロールする
 	seen := make(map[string]bool)
 	for ; n > 0; n-- {
-		for list := range worklist {
-			for _, link := range list {
-				if !seen[link] {
-					seen[link] = true
-					n++
-					go func(link string) {
-						worklist <- crawl(link)
-					}(link)
-				}
+		list := <-worklist
+		for _, link := range list {
+			if !seen[link] {
+				seen[link] = true
+				n++
+				go func(link string) {
+					worklist <- crawl(link)
+				}(link)
 			}
 		}
 	}
