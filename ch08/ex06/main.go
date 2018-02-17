@@ -4,12 +4,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+
+	"flag"
 
 	"golang.org/x/net/html"
 )
 
 var tokens = make(chan struct{}, 20)
+
+type work struct {
+	links []string
+	depth int
+}
+
+var depth = flag.Int("depth", 2, "depth for search")
 
 func crawl(url string) []string {
 	fmt.Println(url)
@@ -23,24 +31,27 @@ func crawl(url string) []string {
 }
 
 func main() {
-	worklist := make(chan []string)
+	flag.Parse()
+	worklist := make(chan *work)
 	var n int //worklist への送信待ちの数
 	//コマンドラインの引数で開始する
 	n++
-	go func() { worklist <- os.Args[1:] }()
+	go func() { worklist <- &work{links: flag.Args(), depth: 1} }()
 
 	//ウェブを並行にクロールする
 	seen := make(map[string]bool)
 	for ; n > 0; n-- {
-		for list := range worklist {
-			for _, link := range list {
-				if !seen[link] {
-					seen[link] = true
-					n++
-					go func(link string) {
-						worklist <- crawl(link)
-					}(link)
-				}
+		w := <-worklist
+		if w.depth > *depth {
+			continue
+		}
+		for _, link := range w.links {
+			if !seen[link] {
+				seen[link] = true
+				n++
+				go func(link string) {
+					worklist <- &work{links: crawl(link), depth: w.depth + 1}
+				}(link)
 			}
 		}
 	}
