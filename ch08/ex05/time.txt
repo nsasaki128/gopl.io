@@ -1,0 +1,9 @@
+RESULT
+para  2  takes  30  sec
+para  3  takes  27  sec
+para  4  takes  25  sec
+para  5  takes  26  sec
+para  6  takes  27  sec
+para  7  takes  29  sec
+para  8  takes  25  sec
+para  9  takes  26  sec
