@@ -6,6 +6,10 @@ import (
 	"net/http"
 	"os"
 
+	"io/ioutil"
+	"net/url"
+	"path/filepath"
+
 	"golang.org/x/net/html"
 )
 
@@ -91,5 +95,64 @@ func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 
 	if post != nil {
 		post(n)
+	}
+}
+
+//Copy from ch05/ex13
+func selectSameHost(original string, list []string) []string {
+	originalUrl, err := url.Parse(original)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	var filtered []string
+
+	for _, target := range list {
+		compareUrl, err := url.Parse(target)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		if originalUrl.Host == compareUrl.Host {
+			filtered = append(filtered, target)
+		}
+	}
+	return filtered
+}
+
+func save(file string) {
+	resp, err := http.Get(file)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	doc, err := url.Parse(file)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	dir := filepath.Join("./", doc.Host, filepath.Clean(doc.Path))
+	//for dividing dir path and file name
+	base := "content"
+
+	err = os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = ioutil.WriteFile(filepath.Join(dir, base), bs, os.ModePerm)
+
+	if err != nil {
+		log.Println(err)
+		return
 	}
 }
