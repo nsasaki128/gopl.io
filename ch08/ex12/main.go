@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"sort"
+	"strings"
 )
 
 func main() {
@@ -25,27 +27,39 @@ func main() {
 }
 
 type client chan<- string //送信用メッセージチャネル
+type enter struct {
+	cli  client
+	name string
+}
+
 var (
-	entering = make(chan client)
-	leaving  = make(chan client)
+	entering = make(chan enter)
+	leaving  = make(chan enter)
 	messages = make(chan string) //クライアントから受信する全てのメッセージ
 )
 
 func broadcaster() {
-	clients := make(map[client]bool) //全ての接続されているクライアント
+	clients := make(map[enter]bool) //全ての接続されているクライアント
 	for {
 		select {
 		case msg := <-messages:
 			// 受信するメッセージを全てのクライアントの
 			// 送信用メッセージチャネルヘブロードキャストする。
 			for cli := range clients {
-				cli <- msg
+				cli.cli <- msg
 			}
 		case cli := <-entering:
+			names := []string{}
+			for cli := range clients {
+				names = append(names, cli.name)
+			}
+			sort.Strings(names)
+			cli.cli <- "current clients: " + strings.Join(names, ", ")
+
 			clients[cli] = true
 		case cli := <-leaving:
 			delete(clients, cli)
-			close(cli)
+			close(cli.cli)
 		}
 	}
 }
@@ -57,7 +71,7 @@ func handleConn(conn net.Conn) {
 	who := conn.RemoteAddr().String()
 	ch <- "You are " + who
 	messages <- who + " has arrived"
-	entering <- ch
+	entering <- enter{cli: ch, name: who}
 
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
@@ -65,7 +79,7 @@ func handleConn(conn net.Conn) {
 	}
 	//注意: input.Err()からの潜在的なエラーを無視している
 
-	leaving <- ch
+	leaving <- enter{cli: ch, name: who}
 	messages <- who + " has left"
 	conn.Close()
 }
