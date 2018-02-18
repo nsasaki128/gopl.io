@@ -85,7 +85,7 @@ func handleConn(conn net.Conn) {
 loop:
 	for {
 		select {
-		case <-time.After(5 * time.Second):
+		case <-time.After(5 * time.Minute):
 			fmt.Fprintln(conn, "Bye")
 			conn.Close()
 			break loop
