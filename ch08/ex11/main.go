@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,20 +9,43 @@ import (
 	"path"
 )
 
-func main() {
-	for _, arg := range os.Args[1:] {
-		filename, n, err := fetch(arg)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "title: %v\n", err)
-		}
-		fmt.Fprintf(os.Stdout, "filename: %s\nsize: %d\n", filename, n)
-	}
+type result struct {
+	url      string
+	filename string
+	size     int64
 }
-func fetch(url string) (filename string, n int64, err error) {
-	resp, err := http.Get(url)
+
+func main() {
+	results := make(chan result, len(os.Args[1:]))
+	done := make(chan struct{})
+	for _, arg := range os.Args[1:] {
+		go func(arg string) {
+			filename, n, err := fetch(arg, done)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "title: %v\n", err)
+				return
+			}
+			results <- result{url: arg, filename: filename, size: n}
+		}(arg)
+	}
+	r := <-results
+	close(done)
+	fmt.Fprintf(os.Stdout, "url: %s\tfilename: %s\nsize: %d\n", r.url, r.filename, r.size)
+}
+func fetch(url string, done <-chan struct{}) (filename string, n int64, err error) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", 0, err
 	}
+	req = req.WithContext(ctx)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", 0, err
+	}
+
 	defer resp.Body.Close()
 
 	local := path.Base(resp.Request.URL.Path)
@@ -36,6 +60,7 @@ func fetch(url string) (filename string, n int64, err error) {
 	if closeErr := f.Close(); err == nil {
 		err = closeErr
 	}
+	cancel()
 	return local, n, err
 
 }
