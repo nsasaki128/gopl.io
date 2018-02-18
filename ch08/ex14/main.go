@@ -67,6 +67,8 @@ func broadcaster() {
 
 func handleConn(conn net.Conn) {
 	ch := make(chan string) //送信用のクライアントメッセージ
+	done := make(chan struct{})
+
 	go clientWriter(conn, ch)
 	ch <- "Who are you?"
 	who := string("")
@@ -84,6 +86,7 @@ func handleConn(conn net.Conn) {
 		for input.Scan() {
 			inputs <- input.Text()
 		}
+		done <- struct{}{}
 	}()
 
 loop:
@@ -92,6 +95,8 @@ loop:
 		case <-time.After(5 * time.Minute):
 			fmt.Fprintln(conn, "Bye")
 			conn.Close()
+			break loop
+		case <-done:
 			break loop
 		case text := <-inputs:
 			messages <- who + ": " + text
