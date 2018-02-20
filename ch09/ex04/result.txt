@@ -1,0 +1,17 @@
+RESULT
+pipeline num=1
+50.366µs have passed
+pipeline num=10
+57.871µs have passed
+pipeline num=100
+281.899µs have passed
+pipeline num=1000
+2.484221ms have passed
+pipeline num=10000
+28.328515ms have passed
+pipeline num=100000
+369.780909ms have passed
+pipeline num=1000000
+3.278863237s have passed
+pipeline num=10000000
+1m1.126255788s have passed
