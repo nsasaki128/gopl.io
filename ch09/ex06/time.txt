@@ -1,0 +1,6 @@
+RESULT
+PROCS  1  takes  52  sec
+PROCS  2  takes  28  sec
+PROCS  4  takes  26  sec
+PROCS  8  takes  27  sec
+PROCS  16  takes  24  sec
