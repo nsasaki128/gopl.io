@@ -23,8 +23,8 @@ func main() {
 			log.Print(err)
 			continue
 		}
-		//TODO ここからゴルーチンでメイン処理を呼び出す
-
+		ftp := newFtp(conn)
+		ftp.run()
 		conn.Close()
 	}
 }
