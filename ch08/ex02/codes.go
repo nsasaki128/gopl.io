@@ -15,8 +15,8 @@ const (
 	//FileStatus                        = 213
 	//HelpMessage                       = 214
 	//ServiceReadyInNMinutes            = 120
-	ServiceReadyForNewUser = 220
-	//ServiceClosingTELNETConnection    = 221
+	ServiceReadyForNewUser         = 220
+	ServiceClosingTELNETConnection = 221
 	//ServiceNotAvailable               = 421
 	//DataConnectionAlreadyOpen         = 125
 	//DataConnectionOpen                = 225

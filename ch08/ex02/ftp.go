@@ -68,6 +68,9 @@ func (ftp *ftp) handleConn(c string) bool {
 		ftp.handleSystCommand(c)
 	case "PWD":
 		ftp.handlePwdCommand(c)
+	case "QUIT":
+		ftp.handleQuitCommand(c)
+		return false
 	default:
 		ftp.reply(CommandNotImplemented, "Command not implemented.")
 	}
@@ -216,4 +219,7 @@ func (ftp *ftp) handleSystCommand(c string) {
 func (ftp *ftp) handlePwdCommand(c string) {
 	fmt.Println(ftp.cwd)
 	ftp.reply(PathNameCreated, ftp.cwd)
+}
+func (ftp *ftp) handleQuitCommand(c string) {
+	ftp.reply(ServiceClosingTELNETConnection, "Close connection.")
 }
