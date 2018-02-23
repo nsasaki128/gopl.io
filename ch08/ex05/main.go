@@ -24,10 +24,7 @@ func main() {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for i := 0; i < *para; i++ {
 		go func(i int) {
-			for py := 0; py < height; py++ {
-				if py%*para != i {
-					continue
-				}
+			for py := i; py < height; py += *para {
 				y := float64(py)/height*(ymax-ymin) + ymin
 				for px := 0; px < width; px++ {
 					x := float64(px)/width*(xmax-xmin) + xmin
