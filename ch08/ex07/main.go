@@ -24,9 +24,6 @@ func crawl(url string) []string {
 		log.Print(err)
 	}
 	filtered := selectSameHost(url, list)
-	for _, link := range filtered {
-		save(link)
-	}
 	return filtered
 }
 
@@ -43,10 +40,11 @@ func main() {
 		list := <-worklist
 		for _, link := range list {
 			if !seen[link] {
+				save(link)
 				seen[link] = true
 				n++
-				go func(link string) {
-					worklist <- crawl(link)
+				go func(url string) {
+					worklist <- crawl(url)
 				}(link)
 			}
 		}
