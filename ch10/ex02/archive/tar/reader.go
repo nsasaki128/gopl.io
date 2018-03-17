@@ -21,7 +21,7 @@ func (r *reader) Next() (*archive.Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &archive.Header{hdr.Name}, nil
+	return &archive.Header{Name: hdr.Name, FileInfo: hdr.FileInfo()}, nil
 }
 
 func (r *reader) Read(b []byte) (n int, err error) {

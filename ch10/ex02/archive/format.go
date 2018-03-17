@@ -12,7 +12,8 @@ import (
 var ErrFormat = errors.New("archive: unknown format")
 
 type Header struct {
-	Name string
+	Name     string
+	FileInfo os.FileInfo
 }
 
 type Reader interface {
@@ -32,13 +33,12 @@ var formats []format
 func RegisterFormat(name, magic string, offset int, read func(*os.File) (Reader, error)) {
 	formats = append(formats, format{name, magic, offset, read})
 }
-func Read(f *os.File) (Reader, string, error) {
+func Read(f *os.File) (Reader, error) {
 	fm := sniff(f)
 	if fm.read == nil {
-		return nil, "", errors.New("invalid format")
+		return nil, errors.New("invalid format")
 	}
-	r, err := fm.read(f)
-	return r, fm.name, err
+	return fm.read(f)
 }
 
 // Just copied from image/format.go
