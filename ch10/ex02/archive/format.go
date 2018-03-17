@@ -11,7 +11,6 @@ import (
 // ErrFormat indicates that decoding encountered an unknown format.
 var ErrFormat = errors.New("archive: unknown format")
 
-// Just copied from image/format.go
 type Header struct {
 	Name string
 }
