@@ -1,0 +1,19 @@
+goos: darwin
+goarch: amd64
+BenchmarkPopCount_0-4                       	300000000	         3.70 ns/op
+BenchmarkIteratePopCount_0-4                	100000000	        20.8 ns/op
+BenchmarkShiftPopCount_0-4                  	20000000	        79.5 ns/op
+BenchmarkClearPopCount_0-4                  	1000000000	         2.38 ns/op
+BenchmarkDivideAndConquerPopCount_0-4       	500000000	         3.45 ns/op
+BenchmarkPopCount_some1-4                   	500000000	         3.68 ns/op
+BenchmarkIteratePopCount_some1-4            	100000000	        19.7 ns/op
+BenchmarkShiftPopCount_some1-4              	20000000	        79.7 ns/op
+BenchmarkClearPopCount_some1-4              	200000000	         6.43 ns/op
+BenchmarkDivideAndConquerPopCount_some1-4   	500000000	         3.43 ns/op
+BenchmarkPopCount_all1-4                    	500000000	         3.74 ns/op
+BenchmarkIteratePopCount_all1-4             	100000000	        19.5 ns/op
+BenchmarkShiftPopCount_all1-4               	20000000	        80.2 ns/op
+BenchmarkClearPopCount_all1-4               	30000000	        52.4 ns/op
+BenchmarkDivideAndConquerPopCount_all1-4    	500000000	         3.51 ns/op
+PASS
+ok  	gopl.io/ch11/ex06	29.519s
