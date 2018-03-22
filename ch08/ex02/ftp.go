@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
+	"os/exec"
 	"path"
 	"strconv"
 	"strings"
@@ -22,13 +22,20 @@ type ftp struct {
 func newFtp(conn net.Conn) *ftp {
 	return &ftp{
 		conn: conn,
-		cwd:  "/",
+		cwd:  os.Getenv("HOME"),
 		addr: conn.RemoteAddr().String(),
 	}
 }
 
 func (ftp *ftp) reply(code int, text string) {
-	io.WriteString(ftp.conn, fmt.Sprintf("%d %s\r\n", code, text))
+	if text == "" {
+		io.WriteString(ftp.conn, fmt.Sprintf("%d\r\n", code))
+	} else {
+		io.WriteString(ftp.conn, fmt.Sprintf("%d %s\r\n", code, text))
+	}
+}
+func (ftp *ftp) replyCode(code int) {
+	ftp.reply(code, "")
 }
 
 func (ftp *ftp) run() {
@@ -51,6 +58,8 @@ func (ftp *ftp) run() {
 
 func (ftp *ftp) handleConn(c string) bool {
 	command := strings.Split(c, " ")
+	fmt.Println(command[0])
+
 	switch command[0] {
 	case "USER":
 		ftp.handleUserCommand(c)
@@ -58,10 +67,13 @@ func (ftp *ftp) handleConn(c string) bool {
 		ftp.handleTypeCommand(c)
 	case "PASV":
 		ftp.handlePasvCommand(c)
+	case "EPRT":
+		//ftp.handlePasvCommand(c)
+		ftp.handleEprtCommand(command[1])
 	case "CWD":
 		ftp.handleCwdCommand(c)
 	case "LIST":
-		ftp.handleListCommand(c)
+		ftp.handleListCommand(command)
 	case "STOR":
 		ftp.handleStorCommand(c)
 	case "SYST":
@@ -116,7 +128,7 @@ func (ftp *ftp) handleCwdCommand(c string) {
 		return
 	}
 	cm := command[1]
-
+	fmt.Println(cm)
 	if !strings.HasPrefix(cm, "/") {
 		cm = path.Join(ftp.cwd, cm)
 	}
@@ -131,51 +143,40 @@ func (ftp *ftp) handleCwdCommand(c string) {
 
 	ftp.reply(RequestedFileActionOkey, "Requested file action okay, completed.")
 }
-func (ftp *ftp) handleListCommand(c string) {
-	command := strings.Split(c, " ")
-	if len(command) < 2 {
-		ftp.reply(CommandNotImplementedForParameter, "Invalid Parameter.")
-		return
-	}
-	p := path.Join(ftp.cwd, command[1])
-
-	ftp.reply(FileStatusOkay, "Open data connection.")
-	conn, err := net.Dial("tcp", ftp.addr)
-	if err != nil {
-		log.Println("error: ", err)
-		ftp.reply(CantOpenDataConnection, "Can't open data connection.")
-		return
-	}
-	defer conn.Close()
-
-	info, err := os.Stat(p)
-	if err != nil {
-		ftp.reply(FileUnavailableBusy, "File or Directory not found.")
-		return
-	}
-
-	var result []byte
-	if info.IsDir() {
-		is, err := ioutil.ReadDir(p)
-		if err != nil {
-			ftp.reply(FileUnavailableBusy, "File or Directory not found.")
-			return
-		}
-
-		for _, i := range is {
-			result = append(result, []byte(i.Name()+"\r\n")...)
-		}
+func (ftp *ftp) handleListCommand(command []string) {
+	ftp.replyCode(DataConnectionAlreadyOpen)
+	if len(command) == 1 {
+		command = nil
 	} else {
-		result = []byte(fmt.Sprintf("%s\r\n", p))
+		command = command[1:]
 	}
-
-	if _, err = conn.Write(result); err != nil {
-		log.Println("error: ", err)
-		ftp.reply(ConnectionTrouble, "Connection closed; transfer aborted.")
+	cmd := exec.Command("/bin/ls", command...)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		ftp.conn.Write([]byte(err.Error()))
+		return
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		ftp.conn.Write([]byte(err.Error()))
 		return
 	}
 
-	ftp.reply(RequestedFileActionOkey, "File transfer completed.")
+	if ftp.conn == nil {
+		panic("Data connection has not been established")
+	}
+
+	a := ascii{ftp.conn, nil}
+	go io.Copy(&a, stdout)
+	go io.Copy(&a, stderr)
+	if err := cmd.Start(); err != nil {
+		ftp.conn.Write([]byte(err.Error()))
+		return
+	}
+
+	cmd.Wait()
+
+	ftp.replyCode(ClosingDataConnection)
 }
 
 func (ftp *ftp) handleStorCommand(c string) {
@@ -218,8 +219,35 @@ func (ftp *ftp) handleSystCommand(c string) {
 
 func (ftp *ftp) handlePwdCommand(c string) {
 	fmt.Println(ftp.cwd)
-	ftp.reply(PathNameCreated, ftp.cwd)
+	ftp.reply(PathNameCreated, fmt.Sprintf(`"%s" is the current directory`, ftp.cwd))
 }
 func (ftp *ftp) handleQuitCommand(c string) {
 	ftp.reply(ServiceClosingTELNETConnection, "Close connection.")
+}
+
+func (ftp *ftp) handleEprtCommand(c string) {
+	ipInfo := strings.Split(c[1:len(c)-1], c[0:1])
+	fmt.Println(ipInfo)
+	// protocol type, network address, port
+	if len(ipInfo) != 3 {
+		ftp.reply(CommandNotImplementedForParameter, "Invalid Parameter.")
+	}
+	var address string
+	switch ipInfo[0] {
+	case "1": // IPv4
+		address = ipInfo[1] + ":" + ipInfo[2]
+	case "2": // IPv6
+		address = fmt.Sprintf("[%s]:%s", ipInfo[1], ipInfo[2])
+	default:
+
+	}
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		ftp.reply(CommandNotImplementedForParameter, "Invalid Parameter.")
+	}
+	defer conn.Close()
+
+	log.Print("Data Connect established\n")
+
+	ftp.replyCode(CommandOk)
 }
