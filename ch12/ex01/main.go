@@ -99,16 +99,15 @@ func formatAtom(v reflect.Value) string {
 	}
 }
 
-type Sample struct {
-	Id   int
-	Name string
-}
-
-type Test struct {
-	SampleMap map[Sample]int
-}
-
 func main() {
+	type Sample struct {
+		Id   int
+		Name string
+	}
+
+	type Test struct {
+		SampleMap map[Sample]int
+	}
 	sample := Test{
 		SampleMap: map[Sample]int{
 			Sample{Id: 1, Name: "01"}: 2,
