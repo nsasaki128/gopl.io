@@ -148,4 +148,10 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println(string(output))
+	outputIndent, err := MarshalIndent(strangelove)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Println(string(outputIndent))
 }

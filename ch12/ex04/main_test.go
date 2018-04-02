@@ -74,28 +74,39 @@ func Test(t *testing.T) {
 	*/
 }
 
+var tests = []struct {
+	name  string
+	input interface{}
+	want  string
+}{
+	{name: "bool true", input: true, want: "t"},
+	{name: "bool false", input: false, want: "nil"},
+	{name: "float positive", input: 1.0, want: "1.000000"},
+	{name: "float negative", input: -1.0, want: "-1.000000"},
+	{name: "float positive zero", input: 0.0, want: "0.000000"},
+	{name: "float negative zero", input: -0.0, want: "0.000000"},
+	{name: "complex both positive", input: 1 + 2i, want: "#C(1.000000 2.000000)"},
+	{name: "complex real positive imag negative", input: 2 - 1i, want: "#C(2.000000 -1.000000)"},
+	{name: "complex real negative imag positive", input: -3 + 4i, want: "#C(-3.000000 4.000000)"},
+	{name: "complex real negative imag negative", input: -1 - 2i, want: "#C(-1.000000 -2.000000)"},
+	{name: "interface nil", input: struct{ v interface{} }{nil}, want: `((v nil))`},
+	{name: "interface array", input: struct{ v interface{} }{[]int{1, 2, 3}}, want: `((v ("[]int" (1 2 3))))`},
+}
+
 func TestMarshal(t *testing.T) {
-	var tests = []struct {
-		name  string
-		input interface{}
-		want  string
-	}{
-		{name: "bool true", input: true, want: "t"},
-		{name: "bool false", input: false, want: "nil"},
-		{name: "float positive", input: 1.0, want: "1.000000"},
-		{name: "float negative", input: -1.0, want: "-1.000000"},
-		{name: "float positive zero", input: 0.0, want: "0.000000"},
-		{name: "float negative zero", input: -0.0, want: "0.000000"},
-		{name: "complex both positive", input: 1 + 2i, want: "#C(1.000000 2.000000)"},
-		{name: "complex real positive imag negative", input: 2 - 1i, want: "#C(2.000000 -1.000000)"},
-		{name: "complex real negative imag positive", input: -3 + 4i, want: "#C(-3.000000 4.000000)"},
-		{name: "complex real negative imag negative", input: -1 - 2i, want: "#C(-1.000000 -2.000000)"},
-		{name: "interface nil", input: struct{ v interface{} }{nil}, want: `((v nil))`},
-		{name: "interface array", input: struct{ v interface{} }{[]int{1, 2, 3}}, want: `((v ("[]int" (1 2 3))))`},
-	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := Marshal(test.input)
+			if err != nil || string(got) != test.want {
+				t.Errorf("Marshal(%v) = \n%q, %v\n want %q, nil", test.input, got, err, test.want)
+			}
+		})
+	}
+}
+func TestMarshalIndent(t *testing.T) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := MarshalIndent(test.input)
 			if err != nil || string(got) != test.want {
 				t.Errorf("Marshal(%v) = \n%q, %v\n want %q, nil", test.input, got, err, test.want)
 			}
