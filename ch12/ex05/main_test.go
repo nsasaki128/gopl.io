@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -51,6 +52,12 @@ func Test(t *testing.T) {
 		t.Fatalf("Marshal failed: %v", err)
 	}
 	t.Logf("Marshal() = %s\n", data)
+
+	var movie Movie
+	if err := json.Unmarshal(data, &movie); err != nil {
+		t.Fatalf("JSON Unmarshal failed: %v", err)
+	}
+	t.Logf("json.Unmarshal() = \n%+v\n", movie)
 
 	// Decode it
 	/*
