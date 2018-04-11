@@ -63,11 +63,11 @@ func (d *Decoder) Token() (Token, error) {
 		name := d.lex.text()
 		t = Symbol{name}
 	case scanner.String:
-		s, e := strconv.Unquote(d.lex.text()) // NOTE: ignoring errors
+		s, e := strconv.Unquote(d.lex.text())
 		t = String{s}
 		err = e
 	case scanner.Int:
-		i, e := strconv.Atoi(d.lex.text()) // NOTE: ignoring errors
+		i, e := strconv.Atoi(d.lex.text())
 		t = Int{i}
 		err = e
 	case '(':
