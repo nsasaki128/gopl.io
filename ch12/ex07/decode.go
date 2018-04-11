@@ -10,10 +10,33 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"reflect"
 	"strconv"
 	"text/scanner"
 )
+
+type Decoder struct {
+	r io.Reader
+}
+
+func NewDecoder(r io.Reader) *Decoder {
+	return &Decoder{r: r}
+}
+
+func (dec *Decoder) Decode(v interface{}) (err error) {
+	lex := &lexer{scan: scanner.Scanner{Mode: scanner.GoTokens}}
+	lex.scan.Init(dec.r)
+	lex.next() // get the first token
+	defer func() {
+		// NOTE: this is not an example of ideal error handling.
+		if x := recover(); x != nil {
+			err = fmt.Errorf("error at %s: %v", lex.scan.Position, x)
+		}
+	}()
+	read(lex, reflect.ValueOf(v).Elem())
+	return nil
+}
 
 //!+Unmarshal
 // Unmarshal parses S-expression data and populates the variable
@@ -93,6 +116,42 @@ func read(lex *lexer, v reflect.Value) {
 		i, _ := strconv.Atoi(lex.text()) // NOTE: ignoring errors
 		v.SetInt(int64(i))
 		lex.next()
+		return
+	case scanner.Float:
+		switch v.Kind() {
+		case reflect.Float32:
+			f, _ := strconv.ParseFloat(lex.text(), 32) // NOTE: ignoring erros
+			v.SetFloat(f)
+		case reflect.Float64:
+			f, _ := strconv.ParseFloat(lex.text(), 64) // NOTE: ignoring erros
+			v.SetFloat(f)
+		default:
+			panic(fmt.Sprintf("unexpected type: %d", v.Kind()))
+		}
+		lex.next()
+		return
+	case '#':
+		lex.next()
+		lex.next()
+		lex.next()
+		r := lex.text()
+		lex.next()
+		i := lex.text()
+		lex.next()
+		lex.next() // consume ')'
+
+		var bitSize int
+		switch v.Kind() {
+		case reflect.Complex64:
+			bitSize = 32
+		case reflect.Complex128:
+			bitSize = 64
+		default:
+			panic(fmt.Sprintf("unexpected type: %d", v.Kind()))
+		}
+		fr, _ := strconv.ParseFloat(r, bitSize)
+		fi, _ := strconv.ParseFloat(i, bitSize)
+		v.SetComplex(complex(fr, fi))
 		return
 	case '(':
 		lex.next()
