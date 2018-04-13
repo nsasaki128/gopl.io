@@ -20,9 +20,9 @@ func newRequest(rawurl string) (*http.Request, error) {
 
 func TestUnpack(t *testing.T) {
 	type constraintTest struct {
-		Email  string `email`
-		Credit string `credit`
-		Zip    string `zip`
+		Email  string `http:email`
+		Credit string `http:credit`
+		Zip    string `http:zip`
 	}
 	tests := []struct {
 		name    string
