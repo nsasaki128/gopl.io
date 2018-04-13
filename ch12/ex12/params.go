@@ -10,7 +10,7 @@ import (
 )
 
 var emailPattern = regexp.MustCompile(`^[a-zA-Z0-9\-._]+@[a-zA-Z0-9\-._]+$`)
-var creditPattern = regexp.MustCompile(`^[0-9]{10}$`)
+var creditPattern = regexp.MustCompile(`^[0-9]{16}$`)
 var zipPattern = regexp.MustCompile(`^[0-9]{7}$`)
 
 func isConstraintPattern(value, constraint string) bool {
@@ -53,6 +53,9 @@ func Unpack(req *http.Request, ptr interface{}) error {
 			continue //認識されなかったHTTPパラメータを無視
 		}
 		for _, value := range values {
+			if !isConstraintPattern(value, name) {
+				return fmt.Errorf("%s invalid for %s", value, name)
+			}
 			if f.Kind() == reflect.Slice {
 				elem := reflect.New(f.Type().Elem()).Elem()
 				if err := populate(elem, value); err != nil {
