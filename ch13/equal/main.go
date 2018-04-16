@@ -14,6 +14,18 @@ func equal(x, y reflect.Value, seen map[comparison]bool) bool {
 	}
 
 	//
+	if x.CanAddr() && y.CanAddr() {
+		xptr := unsafe.Pointer(x.UnsafeAddr())
+		yptr := unsafe.Pointer(y.UnsafeAddr())
+		if xptr == yptr {
+			return true
+		}
+		c := comparison{xptr, yptr, x.Type()}
+		if seen[c] {
+			return true
+		}
+		seen[c] = true
+	}
 
 	switch x.Kind() {
 	case reflect.Bool:
