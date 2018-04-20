@@ -109,6 +109,8 @@ var typeRegistered = map[string]reflect.Type{
 	"uint16":     reflect.TypeOf(uint16(0)),
 	"uint32":     reflect.TypeOf(uint32(0)),
 	"uint64":     reflect.TypeOf(uint64(0)),
+	"float32":    reflect.TypeOf(float32(0)),
+	"float64":    reflect.TypeOf(float64(0)),
 	"bool":       reflect.TypeOf(false),
 	"string":     reflect.TypeOf(""),
 	"complex64":  reflect.TypeOf(complex64(0 + 0i)),
